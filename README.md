@@ -1,1 +1,1 @@
-trampoline-docs
+# Documentation for [trampoline](https://github.com/Justfr33z/trampoline)
