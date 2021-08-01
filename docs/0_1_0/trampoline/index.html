@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="trampoline - A Rust library for function hooking that supports both 32 and 64 bit."><meta name="keywords" content="rust, rustlang, rust-lang, trampoline"><title>trampoline - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../trampoline/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate trampoline</p><div class="block version"><p>Version 0.1.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all trampoline's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="trampoline" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">trampoline</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/trampoline/lib.rs.html#1-88" title="goto source code">[src]</a></span></h1><div class="docblock"><p>trampoline - A Rust library for function hooking that supports both 32 and 64 bit.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<pre><code class="language-toml">[dependencies]
+windows = &quot;0.18.0&quot;
+once_cell = &quot;1.8.0&quot;
+trampoline = &quot;0.1.0&quot;
+
+[build-dependencies]
+windows = &quot;0.18.0&quot;
+</code></pre>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="macro">windows::build!</span>(
+        <span class="ident">Windows::Win32::Foundation</span>::{<span class="ident">HANDLE</span>, <span class="ident">BOOL</span>},
+        <span class="ident">Windows::Win32::System::LibraryLoader</span>::{<span class="ident">GetProcAddress</span>, <span class="ident">GetModuleHandleA</span>},
+    );
+}</pre></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bindings::Windows::Win32::Foundation</span>::{<span class="ident">HANDLE</span>, <span class="ident">BOOL</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bindings::Windows::Win32::System::LibraryLoader</span>::{<span class="ident">GetModuleHandleA</span>, <span class="ident">GetProcAddress</span>};
+<span class="kw">use</span> <span class="ident">std::ffi::c_void</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
+<span class="kw">use</span> <span class="ident">std::mem::transmute</span>;
+<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
+<span class="kw">use</span> <span class="ident">trampoline::TrampolineHook</span>;
+
+<span class="kw">mod</span> <span class="ident">bindings</span> {
+    <span class="macro">windows::include_bindings!</span>();
+}
+
+<span class="kw">static</span> <span class="ident">HOOK</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TrampolineHook</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="ident">Mutex::new</span>(<span class="prelude-val">None</span>)
+});
+
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;stdcall&quot;</span> <span class="kw">fn</span> <span class="ident">wgl_swap_buffers</span>(<span class="ident">hdc</span>: <span class="ident">HANDLE</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BOOL</span> {
+    <span class="kw">let</span> <span class="ident">gateway</span> <span class="op">=</span> <span class="ident">HOOK</span>
+        .<span class="ident">lock</span>()
+        .<span class="ident">unwrap</span>()
+        .<span class="ident">as_ref</span>()
+        .<span class="ident">unwrap</span>()
+        .<span class="ident">gateway</span>();
+
+    <span class="kw">let</span> <span class="ident">gateway_call</span>: <span class="kw">extern</span> <span class="string">&quot;stdcall&quot;</span> <span class="kw">fn</span>(<span class="ident">hdc</span>: <span class="ident">HANDLE</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BOOL</span>;
+    <span class="ident">gateway_call</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">transmute</span>(<span class="ident">gateway</span>) };
+    <span class="ident">gateway_call</span>(<span class="ident">hdc</span>);
+
+    <span class="ident">BOOL::from</span>(<span class="bool-val">true</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">GetModuleHandleA</span>(<span class="string">&quot;opengl32.dll&quot;</span>) };
+    <span class="kw">let</span> <span class="ident">src_wgl_swap_buffers</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+        <span class="ident">GetProcAddress</span>(<span class="ident">module</span>, <span class="string">&quot;wglSwapBuffers&quot;</span>)
+    }.<span class="ident">unwrap</span>();
+
+    <span class="kw">let</span> <span class="ident">hook</span> <span class="op">=</span> <span class="ident">TrampolineHook::hook</span>(
+        <span class="ident">src_wgl_swap_buffers</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+        <span class="ident">wgl_swap_buffers</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+        <span class="number">21</span>
+    ).<span class="ident">unwrap</span>();
+
+    <span class="kw-2">*</span><span class="ident">HOOK</span>
+        .<span class="ident">lock</span>()
+        .<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hook</span>);
+}</pre></div>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Hook.html" title="trampoline::Hook struct">Hook</a></td><td class="docblock-short"><p>A 32 or 64 bit hook.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TrampolineHook.html" title="trampoline::TrampolineHook struct">TrampolineHook</a></td><td class="docblock-short"><p>A 32 or 64 bit trampoline hook.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.Error.html" title="trampoline::Error enum">Error</a></td><td class="docblock-short"></td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.Result.html" title="trampoline::Result type">Result</a></td><td class="docblock-short"></td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="trampoline" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error",""]],"struct":[["Hook","A 32 or 64 bit hook."],["TrampolineHook","A 32 or 64 bit trampoline hook."]],"type":[["Result",""]]});

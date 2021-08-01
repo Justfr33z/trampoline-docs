@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["windows_gen"] = [{"text":"impl <a class=\"trait\" href=\"windows_gen/trait.FromIterator.html\" title=\"trait windows_gen::FromIterator\">FromIterator</a>&lt;<a class=\"struct\" href=\"windows_gen/struct.TokenStream.html\" title=\"struct windows_gen::TokenStream\">TokenStream</a>&gt; for <a class=\"struct\" href=\"windows_gen/struct.TokenStream.html\" title=\"struct windows_gen::TokenStream\">TokenStream</a>","synthetic":false,"types":["windows_gen::squote::token_stream::TokenStream"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
